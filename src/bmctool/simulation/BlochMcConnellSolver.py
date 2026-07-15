@@ -97,6 +97,13 @@ class BlochMcConnellSolver:
     def update_params(self, params: Parameters) -> None:
         """Update matrix self.arr_a according to given Parameters.
 
+        Information on unit convention:
+        Field strength (params.system.b0) is provided in [T].
+        Gyromagnetic ratio (params.system.gamma) is provided in [rad/s/µT] (i.e. gamma_rad_per_s_per_T * 1e-6).
+        Therefore, w0 = b0 * gamma yields the angular Larmor frequency scaled by 1e-6, i.e. w0 has units [rad/s/ppm].
+        This is intentional so that pool chemical shifts (dw) and B0 inhomogeneity (b0_inhom), both specified in [ppm],
+        can be applied directly without an explicit scaling by 1e-6.
+
         Parameters
         ----------
         params
@@ -152,6 +159,8 @@ class BlochMcConnellSolver:
         self.arr_a[1 + n_p, 0] -= rf_freq_2pi
 
         # set off-resonance terms for cest pools
+        # pool.dw is specified in [ppm] and w0 is [rad/s/ppm] (see update_params), hence
+        # pool.dw * w0 directly yields an angular frequency offset in [rad/s].
         dwi_values = np.array([pool.dw for pool in self.params.cest_pools]) * self.w0 - (rf_freq_2pi + self.dw0)
         indices = np.arange(1, n_p + 1)
         self.arr_a[indices, indices + n_p + 1] = -dwi_values
