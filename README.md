@@ -44,6 +44,51 @@ sim = simulate(config_file=config_path, seq_file=seq_path, show_plot=True)
 
 The `simulate` function accepts several additional keyword arguments (`**kwargs`) that allow adjusting the plot. These include ***normalize*** (bool: toggle normalization), ***norm_threshold*** (value/list/array: threshold for normalization offsets), ***offsets*** (list/array: manually defined x-values), ***invert_ax*** (bool: toggle invert axis), ***plot_mtr_asym*** (bool: toggle plot MTR_asym), and ***title***, ***x_label***, ***y_label*** to control the labels.
 
+### Unit conventions
+
+BMCTool follows the unit conventions used in the Pulseq-CEST ecosystem. In particular, chemical shifts and B0 inhomogeneity are specified in *ppm* and are applied without an explicit `1e-6` scaling in the solver. This is achieved by using an angular Larmor frequency `w0` that is scaled per ppm.
+
+Scanner and frequency units:
+
+- **`b0`**: field strength 
+  
+  Unit: `[T]`
+- **`gamma`**: gyromagnetic ratio (angular) 
+  
+  Unit: `[rad/s/µT]`
+- **`w0`** (internal): angular Larmor frequency per ppm 
+  
+  Computed as `w0 = b0 * gamma` 
+  Unit: `[rad/s/ppm]`
+- **`dw`** (pool chemical shift) 
+  
+  Unit: `[ppm]` 
+  Applied as `dw * w0` to obtain an angular frequency offset in `[rad/s]`.
+- **`b0_inhom`** 
+  
+  Unit: `[ppm]` 
+  Applied as `dw0 = b0_inhom * w0` in `[rad/s]`.
+- **Pulseq RF frequency offsets (`rf_freq`)** 
+  
+  Unit: `[Hz]` 
+  Converted internally to angular frequency via `rf_freq * 2π`.
+
+Relaxation and exchange units:
+
+- **`r1`, `r2`**: relaxation rates 
+  
+  Unit: `[Hz]` (i.e. `1/s`)
+- **`t1`, `t2`**: relaxation times 
+  
+  Unit: `[s]`
+- **`k`**: exchange rate 
+  
+  Unit: `[Hz]` (i.e. `1/s`)
+
+Pulse helper utilities:
+
+- **`GAMMA_HZ`** (in `bmctool.__init__`) is provided as `42.5764` and follows the common convention `[Hz/µT]` (numerically equivalent to `[MHz/T]`).
+
 ## Pulseq-CEST Project
 
 The BMCTool was developed in parallel to the [Pulseq-CEST project](https://pulseq-cest.github.io/), which aims to provide published and approved CEST saturation blocks in the [Pulseq](https://pulseq.github.io/) open file format to enable an exact comparison of CEST saturation blocks with newly developed or adapted saturation blocks for reproducible research. The [Pulseq-CEST project](https://pulseq-cest.github.io/) also provides a [MATLAB implementation](https://github.com/kherz/pulseq-cest).

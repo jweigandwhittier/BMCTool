@@ -22,7 +22,7 @@ class System:
         b0
             field strength [T]
         gamma
-            gyromagnetic ratio [MHz/T]
+            gyromagnetic ratio [rad/s/µT]
         b0_inhom
             B0 field inhomogeneity [ppm]
         rel_b1
